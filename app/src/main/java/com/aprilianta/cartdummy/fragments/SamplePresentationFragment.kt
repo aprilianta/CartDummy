@@ -22,9 +22,10 @@ import android.view.ViewGroup
 import com.aprilianta.cartdummy.R
 import kotlinx.android.synthetic.main.fragment_sample_presentation.*
 
-class SamplePresentationFragment (override var nameProduct: String?,
-                                  override var priceProduct: String?)
-    : PresentationFragment() {
+class SamplePresentationFragment(
+    override var nameProduct: String?,
+    override var priceProduct: String?
+) : PresentationFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,7 +48,11 @@ class SamplePresentationFragment (override var nameProduct: String?,
             nameProduct: String?,
             priceProduct: String?
         ): SamplePresentationFragment {
-            val frag = priceProduct?.let { nameProduct?.let { nameProduct -> SamplePresentationFragment(nameProduct, priceProduct) } }
+            val frag = priceProduct?.let {
+                nameProduct?.let { nameProduct ->
+                    SamplePresentationFragment(nameProduct, priceProduct)
+                }
+            }
             frag?.setDisplay(ctxt, display)
             return frag!!
         }

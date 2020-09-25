@@ -71,6 +71,8 @@ class MainActivity : AppCompatActivity(), PresentationHelper.Listener {
         btn_checkout.setOnClickListener {
             Toast.makeText(this@MainActivity, "Show total on LCD", Toast.LENGTH_LONG).show()
             SunmiPrintHelper.getInstance().sendTextsToLcd("Total", "", total_price.text.toString())
+            preso?.setTextNameProduct("Total price :")
+            preso?.setTextPriceProduct(total_price.text.toString())
         }
         productViewModel.fetchDummyProduct()
         productViewModel.listenToProducts().observe(this, Observer {
@@ -93,17 +95,17 @@ class MainActivity : AppCompatActivity(), PresentationHelper.Listener {
                     p.price!! * p.selectedQuantity!!
                 }
             }
-            total_price.text = "Rp " + totalPrice.toString()
+            total_price.text = "Rp $totalPrice"
         })
 
         productViewModel.listenNameProduct().observe(this, Observer {
             nameProduct = it
-            Log.d("logapril namaproduk", nameProduct)
+            preso?.setTextNameProduct(nameProduct)
         })
 
         productViewModel.listenPriceProduct().observe(this, Observer {
             priceProduct = it
-            Log.d("logapril priceproduk", priceProduct)
+            preso?.setTextPriceProduct(priceProduct)
         })
     }
 
@@ -137,18 +139,11 @@ class MainActivity : AppCompatActivity(), PresentationHelper.Listener {
         }
     }
 
-    fun buildPreso(display: Display?): PresentationFragment? {
-        if (nameProduct.isNullOrEmpty() && priceProduct.isNullOrEmpty()) {
+    private fun buildPreso(display: Display?): PresentationFragment? {
             return SamplePresentationFragment.newInstance(
                 this, display,
                 "Welcome to", "April Store"
             )
-        } else {
-            return SamplePresentationFragment.newInstance(
-                this, display,
-                nameProduct, priceProduct
-            )
-        }
     }
 
     override fun onResume() {

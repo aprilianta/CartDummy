@@ -19,6 +19,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.Display
 import androidx.fragment.app.DialogFragment
+import kotlinx.android.synthetic.main.fragment_sample_presentation.*
 
 /**
  * Fragment that can display its content in a Presentation. Otherwise,
@@ -65,5 +66,13 @@ abstract class PresentationFragment : DialogFragment() {
         return if (preso != null) {
             preso!!.context
         } else activity
+    }
+
+    fun setTextNameProduct(nameProduct: String?) {
+        tv_nama_produk.text = nameProduct
+    }
+
+    fun setTextPriceProduct(priceProduct: String?) {
+        tv_harga_produk.text = priceProduct
     }
 }
