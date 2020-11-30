@@ -100,7 +100,7 @@ class PresentationHelper(ctxt: Context, listener: Listener?) :
     private fun handleRoute() {
         if (isEnabled()) {
             val displays = mgr!!.getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION)
-            if (displays.size == 0) {
+            if (displays.isEmpty()) {
                 if (current != null || isFirstRun) {
                     listener!!.clearPreso(true)
                     current = null

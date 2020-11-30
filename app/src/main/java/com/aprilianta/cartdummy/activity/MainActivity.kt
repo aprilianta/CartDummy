@@ -1,8 +1,11 @@
 package com.aprilianta.cartdummy.activity
 
+import android.content.DialogInterface
 import android.content.res.Configuration
+import android.hardware.display.DisplayManager
+import android.hardware.display.DisplayManager.DisplayListener
+import android.media.MediaRouter
 import android.os.Bundle
-import android.util.Log
 import android.view.Display
 import android.view.View
 import android.widget.Toast
@@ -24,14 +27,17 @@ import com.aprilianta.cartdummy.viewmodels.ProductViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.bottomsheet_cart.*
-import kotlinx.android.synthetic.main.fragment_sample_presentation.*
+
 
 class MainActivity : AppCompatActivity(), PresentationHelper.Listener {
     private lateinit var productViewModel: ProductViewModel
     private lateinit var bottomSheet: BottomSheetBehavior<*>
-    var preso: PresentationFragment? = null
-    var helper: PresentationHelper? = null
-    var inline: View? = null
+    //var preso: PresentationFragment? = null
+    //var helper: PresentationHelper? = null
+    //var inline: View? = null
+    private var mDisplayManager: DisplayManager? = null
+    private var displays: Array<Display> = emptyArray()
+    private var presentation: DemoPresentation? = null
     var nameProduct: String? = ""
     var priceProduct: String? = ""
 
@@ -40,8 +46,22 @@ class MainActivity : AppCompatActivity(), PresentationHelper.Listener {
         setContentView(R.layout.activity_main)
         setupUI()
         initPrinter()
-        inline = findViewById(R.id.preso)
-        helper = PresentationHelper(this, this)
+        //inline = findViewById(R.id.preso)
+        //helper = PresentationHelper(this, this)
+        try {
+            mDisplayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
+            displays = mDisplayManager!!.getDisplays(null)
+        } catch (e: Exception){
+            e.printStackTrace()
+        }
+        try {
+            presentation = DemoPresentation(this, displays[1])
+            presentation!!.show()
+            presentation!!.setTextNameProduct("Welcome to")
+            presentation!!.setTextPriceProduct("April Store")
+        } catch (e: Exception){
+            e.printStackTrace()
+        }
     }
 
     private fun setupUI() {
@@ -71,8 +91,15 @@ class MainActivity : AppCompatActivity(), PresentationHelper.Listener {
         btn_checkout.setOnClickListener {
             Toast.makeText(this@MainActivity, "Show total on LCD", Toast.LENGTH_LONG).show()
             SunmiPrintHelper.getInstance().sendTextsToLcd("Total", "", total_price.text.toString())
-            preso?.setTextNameProduct("Total price :")
-            preso?.setTextPriceProduct(total_price.text.toString())
+            //preso?.setTextNameProduct("Total price :")
+            //preso?.setTextPriceProduct(total_price.text.toString())
+            try {
+                presentation?.setTextNameProduct("Total price :")
+                presentation?.setTextPriceProduct(total_price.text.toString())
+            } catch (e: Exception){
+                e.printStackTrace()
+            }
+
         }
         productViewModel.fetchDummyProduct()
         productViewModel.listenToProducts().observe(this, Observer {
@@ -96,16 +123,36 @@ class MainActivity : AppCompatActivity(), PresentationHelper.Listener {
                 }
             }
             total_price.text = "Rp $totalPrice"
+            if (totalPrice == 0) {
+                //preso?.setTextNameProduct("Welcome to")
+                //preso?.setTextPriceProduct("April Store")
+                try {
+                    presentation!!.setTextNameProduct("Welcome to")
+                    presentation!!.setTextPriceProduct("April Store")
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         })
 
         productViewModel.listenNameProduct().observe(this, Observer {
             nameProduct = it
-            preso?.setTextNameProduct(nameProduct)
+            //preso?.setTextNameProduct(nameProduct)
+            try {
+                presentation?.setTextNameProduct(nameProduct)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         })
 
         productViewModel.listenPriceProduct().observe(this, Observer {
             priceProduct = it
-            preso?.setTextPriceProduct(priceProduct)
+            //preso?.setTextPriceProduct(priceProduct)
+            try {
+                presentation?.setTextPriceProduct(priceProduct)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         })
     }
 
@@ -118,6 +165,7 @@ class MainActivity : AppCompatActivity(), PresentationHelper.Listener {
     }
 
     override fun showPreso(display: Display?) {
+        /*
         if (inline!!.visibility == View.VISIBLE) {
             inline!!.visibility = View.GONE
             val f = supportFragmentManager.findFragmentById(R.id.preso)
@@ -125,9 +173,11 @@ class MainActivity : AppCompatActivity(), PresentationHelper.Listener {
         }
         preso = display?.let { buildPreso(it) }
         preso!!.show(supportFragmentManager, "preso")
+         */
     }
 
     override fun clearPreso(switchToInline: Boolean) {
+        /*
         if (switchToInline) {
             inline!!.visibility = View.VISIBLE
             supportFragmentManager.beginTransaction()
@@ -137,6 +187,7 @@ class MainActivity : AppCompatActivity(), PresentationHelper.Listener {
             preso!!.dismiss()
             preso = null
         }
+         */
     }
 
     private fun buildPreso(display: Display?): PresentationFragment? {
@@ -148,11 +199,16 @@ class MainActivity : AppCompatActivity(), PresentationHelper.Listener {
 
     override fun onResume() {
         super.onResume()
-        helper?.onResume()
+        //helper?.onResume()
     }
 
     override fun onPause() {
-        helper!!.onPause()
         super.onPause()
+        //helper!!.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        presentation?.dismiss()
     }
 }
